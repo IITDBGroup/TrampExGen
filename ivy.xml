@@ -5,7 +5,7 @@
 	<info 
  		organisation="org.bitbucket.ibencher" 
  		module="vagabond" 
- 		revision="1.0"
+ 		revision="1.0.1"
  		status="integration">
  	</info>
 	<dependencies>

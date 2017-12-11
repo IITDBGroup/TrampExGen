@@ -156,12 +156,12 @@ Vagabond is a system for explaining errors in data exchange.
 
 	<target name="generate-xml-bindings" 
 		depends="generate-xml-jar,generate-xml-src"
-		unless="skip.xmlbeans">
+		>
 	</target>
 
 	<target name="generate-xml-src"
 			depends="define-tasks-and-setup-paths"
-			unless="skip.xmlbeans"	>
+			>
 		<description>This task generates the java source files from the xsd schema.</description>
 		<xmlbean schema="${xmlschema.model}" 
 			classgendir="${dir.bin}" 
