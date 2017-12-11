@@ -51,6 +51,8 @@ Vagabond is a system for explaining errors in data exchange.
 		<property name="xbeans.jar.name" value="vagabond-xml-model" />
 		<property name="xbeans.jar.model" location="${dir.library}/${xbeans.jar.name}.jar" />
 		<property name="xbeans.jar.expl" location="${dir.library}/vagabond-xml-model-expl.jar" />
+		<property name="xbeans.ivy.model" location="${dir.buildresource}/xmlmodel.ivy.xml" />
+		<property name="xbeans.ivy.expl" location="${dir.buildresource}/xmlexpl.ivy.xml" />
 		
 		<create-build-dirs />
 		
@@ -213,4 +215,21 @@ Vagabond is a system for explaining errors in data exchange.
 			javasource="1.6" />
 	</target>
 
+	<!-- deploy to mvn central -->
+	<target name="deploy-snapshot" 
+			depends="jar,java-doc"
+			description="generate jars and pom.xml and deploy them as a snapshot to OSSRH">
+		<deploy-to-maven-central release="no"/>
+		<deploy-to-maven-central ivyfile="${xbeans.ivy.model}" copyjar="${xbeans.jar.model}" srcdir="${xbeans.srcdir}/model" release="no"/>
+		<deploy-to-maven-central ivyfile="${xbeans.ivy.expl}" copyjar="${xbeans.jar.expl}" srcdir="${xbeans.srcdir}/expl" release="no"/>
+	</target>
+	
+	<target name="deploy-mvn-central" 
+			depends="jar,java-doc"
+			description="generate jars and pom.xml and deploy them to maven central via OSSRH">
+		<deploy-to-maven-central release="yes"/>
+		<deploy-to-maven-central ivyfile="${xbeans.ivy.model}" copyjar="${xbeans.jar.model}" srcdir="${xbeans.srcdir}/model" release="yes"/>
+		<deploy-to-maven-central ivyfile="${xbeans.ivy.expl}" copyjar="${xbeans.jar.expl}" srcdir="${xbeans.srcdir}/expl" release="yes"/>
+	</target>
+	
 </project>

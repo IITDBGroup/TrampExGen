@@ -4,24 +4,13 @@
  xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 	<info 
  		organisation="org.bitbucket.ibencher" 
- 		module="vagabond" 
+ 		module="vagabond-xmlmodel" 
  		revision="1.0"
  		status="integration">
  	</info>
 	<dependencies>
-		<dependency org="args4j" name="args4j" rev="2.33">
-			<artifact name="args4j" type="jar" />
-		</dependency>
-		<dependency org="commons-primitives" name="commons-primitives" rev="1.0"/>
-		<dependency org="commons-collections" name="commons-collections" rev="3.2.2"/>
-		<dependency org="log4j" name="log4j" rev="1.2.17">
-			<artifact name="log4j" type="jar" />
-		</dependency>
-		<dependency org="junit" name="junit" rev="4.9" />
-		<dependency org="postgresql" name="postgresql" rev="9.1-901-1.jdbc4"/>
 		<dependency org="xerces" name="xercesImpl" rev="2.11.0"/>
 		<dependency org="net.sf.saxon" name="saxon" rev="8.7"/>
-		<dependency org="org.postgresql" name="postgresql" rev="42.1.4"/>
 		<dependency org="org.apache.xmlbeans" name="xmlbeans" rev="2.6.0"/>
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.5.2"/>
 		<dependency org="org.slf4j" name="slf4j-simple" rev="1.5.2"/>

@@ -3,3 +3,4 @@ bin/*
 xbeans/*
 /bin/
 deploy/
+doc/
