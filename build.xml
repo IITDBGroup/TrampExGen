@@ -154,36 +154,6 @@ Vagabond is a system for explaining errors in data exchange.
 		</jar>
 	</target>
 
-	<target name="JarForGui" depends="compile,generate-xml-bindings">
-		<jar destfile="${basedir}/../VagabondRCP/lib/loadermac.jar" basedir="${binarydir}">
-			<manifest>
-				<attribute name="Main-Class" value="${mainclass.loader}" />
-				<attribute name="Created-By" value="University of Toronto" />
-				<attribute name="Class-Path" value="${fullJarClasspath}" />
-			</manifest>
-		</jar>
-	</target>
-
-	<target name="JarForSTBench" depends="compile,generate-xml-bindings">
-		<jar destfile="${basedir}/../iBench/lib/trampexgen.jar" basedir="${binarydir}">
-			<manifest>
-				<attribute name="Main-Class" value="${mainclass.loader}" />
-				<attribute name="Created-By" value="University of Toronto" />
-				<attribute name="Class-Path" value="${fullJarClasspath}" />
-			</manifest>
-		</jar>
-	</target>
-	
-	<target name="JarForVagabondRCP" depends="compile,generate-xml-bindings">
-		<jar destfile="${basedir}/../iBench/lib/trampexgen.jar" basedir="${binarydir}">
-			<manifest>
-				<attribute name="Main-Class" value="${mainclass.loader}" />
-				<attribute name="Created-By" value="University of Toronto" />
-				<attribute name="Class-Path" value="${fullJarClasspath}" />
-			</manifest>
-		</jar>
-	</target>
-
 	<target name="generate-xml-bindings" 
 		depends="generate-xml-jar,generate-xml-src"
 		unless="skip.xmlbeans">
