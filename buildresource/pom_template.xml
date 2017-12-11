@@ -7,7 +7,7 @@
   	<artifactId>${ivy.pom.artifactId}</artifactId>
   	<packaging>${ivy.pom.packaging}</packaging>
 	<version>${ivy.pom.version}${mvn.is.release}</version>
-  	<name>${ivy.pom.name}</name>
+  	<name>${ivy.pom.artifactId}</name>
   	<description>${ivy.pom.description}</description>
   	<url>${ivy.pom.url}</url>
 	

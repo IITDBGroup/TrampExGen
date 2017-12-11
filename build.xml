@@ -16,7 +16,9 @@ Vagabond is a system for explaining errors in data exchange.
 	<!-- Main Class and Packages-->
 	<property name="jar.creator" value="Illinois Institute of Technology, Department of Computer Science" />
 	<property name="package" value="org.vagabond" />
-	
+	<property name="mvn.description" value="Vagabond is a tool for automatic generation of explanations for data exchange errors." />
+	<property name="mvn.url" value="http://www.cs.iit.edu/%7edbgroup/research/vagabond.php" />
+		
 	<!-- define artifacts' name, which follows the convention of Maven -->
 	<property name="artifactId" value="vagabond" />
 	
@@ -53,7 +55,11 @@ Vagabond is a system for explaining errors in data exchange.
 		<property name="xbeans.jar.expl" location="${dir.library}/vagabond-xml-model-expl.jar" />
 		<property name="xbeans.ivy.model" location="${dir.buildresource}/xmlmodel.ivy.xml" />
 		<property name="xbeans.ivy.expl" location="${dir.buildresource}/xmlexpl.ivy.xml" />
-		
+		<property name="xbeans.model.mvn.description" value="Vagabond XML model for storing data integration metadata (schemas, mappings, constraints)." />
+		<property name="xbeans.model.mvn.url" value="${mvn.url}" />
+		<property name="xbeans.expl.mvn.description" value="Vagabond XML model for storing explanations for data exchange errors." />
+		<property name="xbeans.expl.mvn.url" value="${mvn.url}" />
+				
 		<create-build-dirs />
 		
 		<!-- check whether XML beans need to be regenerated or not -->
@@ -220,16 +226,40 @@ Vagabond is a system for explaining errors in data exchange.
 			depends="jar,java-doc"
 			description="generate jars and pom.xml and deploy them as a snapshot to OSSRH">
 		<deploy-to-maven-central release="no"/>
-		<deploy-to-maven-central ivyfile="${xbeans.ivy.model}" copyjar="${xbeans.jar.model}" srcdir="${xbeans.srcdir}/model" release="no"/>
-		<deploy-to-maven-central ivyfile="${xbeans.ivy.expl}" copyjar="${xbeans.jar.expl}" srcdir="${xbeans.srcdir}/expl" release="no"/>
+		<deploy-to-maven-central 
+				ivyfile="${xbeans.ivy.model}" 
+				copyjar="${xbeans.jar.model}" 
+				srcdir="${xbeans.srcdir}/model"
+				description="${xbeans.model.mvn.description}"
+				url="${xbeans.model.mvn.url}"
+				release="no"/>
+		<deploy-to-maven-central 
+				ivyfile="${xbeans.ivy.expl}" 
+				copyjar="${xbeans.jar.expl}" 
+				srcdir="${xbeans.srcdir}/expl" 
+				description="${xbeans.expl.mvn.description}"
+				url="${xbeans.expl.mvn.url}"
+				release="no"/>
 	</target>
 	
 	<target name="deploy-mvn-central" 
 			depends="jar,java-doc"
 			description="generate jars and pom.xml and deploy them to maven central via OSSRH">
 		<deploy-to-maven-central release="yes"/>
-		<deploy-to-maven-central ivyfile="${xbeans.ivy.model}" copyjar="${xbeans.jar.model}" srcdir="${xbeans.srcdir}/model" release="yes"/>
-		<deploy-to-maven-central ivyfile="${xbeans.ivy.expl}" copyjar="${xbeans.jar.expl}" srcdir="${xbeans.srcdir}/expl" release="yes"/>
+		<deploy-to-maven-central 
+				ivyfile="${xbeans.ivy.model}" 
+				copyjar="${xbeans.jar.model}" 
+				srcdir="${xbeans.srcdir}/model"
+				description="${xbeans.model.mvn.description}"
+				url="${xbeans.model.mvn.url}"
+				release="yes"/>
+		<deploy-to-maven-central 
+				ivyfile="${xbeans.ivy.expl}" 
+				copyjar="${xbeans.jar.expl}" 
+				srcdir="${xbeans.srcdir}/expl" 
+				description="${xbeans.expl.mvn.description}"
+				url="${xbeans.expl.mvn.url}"
+				release="yes"/>
 	</target>
 	
 </project>
