@@ -1,2 +1,3 @@
 #!/bin/bash
-java -jar loadermac.jar $*
+java -cp vagabond.jar org.vagabond.commandline.loader.CommandLineLoader $*
+

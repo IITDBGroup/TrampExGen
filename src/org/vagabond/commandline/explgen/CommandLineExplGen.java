@@ -364,11 +364,20 @@ public class CommandLineExplGen {
 		if (log.isDebugEnabled()) {log.debug("Command line args are: <" + LoggerUtil.arrayToString(args)
 				+ ">");}
 		parser = new CmdLineParser(explOptions);
-		parser.parseArgument(args);
+		try {
+			parser.parseArgument(args);
+		} catch (Exception e) {
+			printUsage(parser, System.out);
+			throw e;
+		}
+		if (explOptions.isShowHelp()) {
+			printUsage(parser, System.out);
+			System.exit(0);
+		}
 	}
 
-	public void printUsage(PrintStream out) {
-		CmdLineParser parser = new CmdLineParser(explOptions);
+	public void printUsage(CmdLineParser parser, PrintStream out) {
+		out.print("explgen.sh [options]\n\n");
 		parser.printUsage(out);
 	}
 
@@ -388,7 +397,6 @@ public class CommandLineExplGen {
 		}
 		catch (CmdLineException e) {
 			LoggerUtil.logException(e, log);
-			printUsage(System.err);
 			return false;
 		}
 		catch (Throwable e) {

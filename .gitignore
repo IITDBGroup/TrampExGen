@@ -2,3 +2,4 @@ build/*
 bin/*
 xbeans/*
 /bin/
+deploy/

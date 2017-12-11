@@ -1,7 +1,6 @@
 package org.vagabond.commandline.loader;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.sql.Connection;
@@ -16,10 +15,14 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.vagabond.explanation.generation.QueryHolder;
 import org.vagabond.mapping.model.MapScenarioHolder;
 import org.vagabond.mapping.model.ModelLoader;
+import org.vagabond.xmlmodel.MappingScenarioDocument.MappingScenario;
+import org.vagabond.xmlmodel.ConnectionInfoType;
 import org.vagabond.mapping.model.serialize.mapfile.MapFileSerializer;
 import org.vagabond.mapping.scenarioToDB.DatabaseScenarioLoader;
 import org.vagabond.util.ConnectionManager;
 import org.vagabond.util.LoggerUtil;
+
+
 
 public class CommandLineLoader {
 
@@ -112,16 +115,41 @@ public class CommandLineLoader {
 		ModelLoader.getInstance().setValidation(validation);
 		map = ModelLoader.getInstance().load(xmlDoc);
 		QueryHolder.getInstance().loadFromDirFallbackResource(new File("resource/queries"), QueryHolder.DEFAULT_QUERY_LIST_FILE);
-		options.setDBOptions(map.getScenario());
+		setDBOptions(map.getScenario());
+	}
+	
+	public void setDBOptions (MappingScenario map) {
+		ConnectionInfoType con = map.getConnectionInfo();
+		
+		if (con != null) {
+			options.setDbUser(con.getUser());
+			options.setDbPassword(con.getPassword());
+			options.setDbName(con.getDB());
+			options.setDbURL(con.getHost());
+		}
 	}
 	
 	private void parseOptions (String[] args) throws CmdLineException {
 		CmdLineParser parser;
 		
-		if (log.isDebugEnabled()) {log.debug("Command line args are: <" + LoggerUtil.arrayToString(args) + ">");};
 		parser = new CmdLineParser(options);
-		parser.parseArgument(args);
+		if (log.isDebugEnabled()) {log.debug("Command line args are: <" + LoggerUtil.arrayToString(args) + ">");};
+		try {
+			parser.parseArgument(args);
+		} catch (Exception e) {
+			printUsage(parser, System.out);
+		}
+		if(options.isShowHelp()) {
+			printUsage(parser, System.out);
+			System.exit(0);
+		}
 	}
+	
+	private void printUsage (CmdLineParser parser, PrintStream out) {
+		out.println("loader.sh [options]\n\n");
+		parser.printUsage(out);
+	}
+	
 	
 	public void executeOnDB () throws Exception {
 		Connection dbCon;

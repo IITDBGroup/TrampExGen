@@ -5,9 +5,6 @@ import java.io.File;
 import org.apache.log4j.Level;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.OptionHandlerRegistry;
-import org.vagabond.xmlmodel.ConnectionInfoType;
-import org.vagabond.xmlmodel.MappingScenarioDocument.MappingScenario;
-
 
 public class LoaderOptions {
 
@@ -57,9 +54,10 @@ public class LoaderOptions {
 	private File logConfig = null;
 	
 	@Option(name = "-loglevel", usage ="set a global log level if no log4j configuration file is specificed")
-	private
-	Level loglevel = null;
+	private Level loglevel = null;
 
+	@Option(name="-help", usage="show this help message")
+	private boolean showHelp = false;
 	
 	private boolean[] dbOptionsSet = { false, false, false, false };
 
@@ -72,16 +70,7 @@ public class LoaderOptions {
 		OptionHandlerRegistry.getRegistry().registerHandler(Level.class, Log4jLevelOptionHandler.class);
 	}
 	
-	public void setDBOptions (MappingScenario map) {
-		ConnectionInfoType con = map.getConnectionInfo();
-		
-		if (con != null) {
-			dbUser = con.getUser();
-			dbPassword = con.getPassword();
-			dbName = con.getDB();
-			dbURL = con.getHost();
-		}
-	}
+	
 
 	public File getXmlDoc() {
 		return xmlDoc;
@@ -185,6 +174,14 @@ public class LoaderOptions {
 
 	public void setLoglevel(Level loglevel) {
 		this.loglevel = loglevel;
+	}
+
+	public boolean isShowHelp() {
+		return showHelp;
+	}
+
+	public void setShowHelp(boolean showHelp) {
+		this.showHelp = showHelp;
 	}
 	
 	

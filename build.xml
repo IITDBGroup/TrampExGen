@@ -1,266 +1,215 @@
-<project name="TrampExGen" default="Deploy" basedir=".">
+<project name="Vagabond" 
+	default="jar" 
+	basedir="."
+	xmlns:ivy="antlib:org.apache.ivy.ant"
+	xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+	xmlns:if="ant:if"
+    xmlns:unless="ant:unless"
+	>
 	<description>
-
+Vagabond is a system for explaining errors in data exchange.
 	</description>
 
-	<!-- Internal Taskdefs -->
-
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-		<classpath>
-			<pathelement location="${basedir}/lib/ant-contrib.jar" />
-		</classpath>
-	</taskdef>
+	<!-- Import macro definitions and common stuff -->
+	<import file="antutils/ant-common.xml" />
+	
+	<!-- Main Class and Packages-->
+	<property name="jar.creator" value="Illinois Institute of Technology, Department of Computer Science" />
+	<property name="package" value="org.vagabond" />
+	
+	<!-- define artifacts' name, which follows the convention of Maven -->
+	<property name="artifactId" value="vagabond" />
+	
+	<!-- ClassPath Setup -->
+	<property name="classpath.name.bin" value="classpath.bin" />
+	<property name="classpath.name.build" value="classpath.build" />
 
 	<!-- Properties -->
+	<property name="xmlschema.model" location="resource/xmlschema/mappingScenario.xsd" />
+	<property name="xmlschema.expl" location="resource/xmlschema/explanationAndErrors.xsd" />
+	<property name="mainclass.loader" value="org.vagabond.commandline.loader.CommandLineLoader" />
+	<property name="mainclass.explgen" value="org.vagabond.commandline.explgen.CommandLineExplGen" />
+	
+	<!-- ********************************************************************************
+			Task definitions
+		 ******************************************************************************** -->
 
-	<property name="binarydir" location="${basedir}/bin" />
-	<property name="builddir" location="${basedir}/build" />
-	<property name="docdir" location="${basedir}/doc" />
-	<property name="librarydir" location="${basedir}/lib" />
-	<property name="resourcedir" location="${basedir}/resource" />
-	<property name="sourcedir" location="${basedir}/src" />
-	<property name="loadermacdir" location="${builddir}/macloader" />
-	<property name="loaderwindir" location="${builddir}/winloader" />
-	<property name="explmacdir" location="${builddir}/macexplgen" />
-	<property name="explwindir" location="${builddir}/winexplgen" />
-
-	<property name="schema" location="resource/xmlschema/mappingScenario.xsd" />
-	<property name="schemaExpl" location="resource/xmlschema/explanationAndErrors.xsd" />
-	<property name="loaderMainClass" value="org.vagabond.commandline.loader.CommandLineLoader" />
-	<property name="explgenMainClass" value="org.vagabond.commandline.explgen.CommandLineExplGen" />
-
-	<property name="XBeansDir" location="${basedir}/xbeans" />
-	<property name="XBeansSrc" location="${XBeansDir}/src" />
-	<property name="XBeansBin" location="${XBeansDir}/bin" />
-	<property name="jarXMLName" value="vagabondXMLModel" />
-	<property name="XBeansJar" location="lib/${jarXMLName}.jar" />
-	<property name="XBeansJarExpl" location="lib/vagabondExplXMLModel.jar" />
-
-	<!-- ClassPath Setup -->
-
-	<path id="libraries">
-		<fileset dir="${librarydir}" />
-	</path>
-
-	<pathconvert property="jarClasspath" pathsep="    ">
-		<path>
-			<fileset dir="${librarydir}">
-				<exclude name="ant*.jar" />
-			</fileset>
-		</path>
-		<mapper>
-			<chainedmapper>
-				<flattenmapper />
-				<globmapper from="*.jar" to="lib/*.jar" casesensitive="no" />
-			</chainedmapper>
-		</mapper>
-	</pathconvert>
-
-	<property name="fullJarClasspath" value="${jarClasspath}   resource/    lib/" />
-
-	<path id="project.class.path.xml">
-		<pathelement path="lib/xbean.jar" />
-		<pathelement path="lib/jsr173_1.0_api.jar" />
-	</path>
-
-	<!-- Task definitions -->
-
-	<taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpathref="project.class.path.xml" />
-
-	<!-- targets -->
-
-	<target name="CopyResources" depends="Clean">
-		<mkdir dir="${binarydir}"/>
-		<copy todir="${binarydir}">
-			<fileset dir="${sourcedir}">
-				<exclude name="**/*.java" />
-				<exclude name=".svn" />
-			</fileset>
-		</copy>
+	<!-- create dirs and setup basic properties -->
+	<target name="mkdirs-and-setup-props">
+		<set-default-props />
+		
+		<!-- dirs -->
+		<property name="dir.deploy" value="${basedir}/deploy" />
+		<property name="dir.deploylib" value="${dir.deploy}/lib" />
+		
+		<property name="jar.bin" value="${dir.deploy}/${artifactId}.jar" />
+		
+		<!-- XML and XBeans setup --> 
+		<property name="xbeans.targetdir" location="${dir.build}/xbeans" />
+		<property name="xbeans.srcdir" location="${xbeans.targetdir}/src" />
+		<property name="xbeans.bindir" location="${xbeans.targetdir}/bin" />
+		<property name="xbeans.jar.name" value="vagabond-xml-model" />
+		<property name="xbeans.jar.model" location="${dir.library}/${xbeans.jar.name}.jar" />
+		<property name="xbeans.jar.expl" location="${dir.library}/vagabond-xml-model-expl.jar" />
+		
+		<create-build-dirs />
+		
+		<!-- check whether XML beans need to be regenerated or not -->
+		<uptodate srcfile="${xmlschema.model}" 
+				targetfile="${xbeans.jar.model}" 
+		      	property="skip.xmlbeans.model" value="true"/>
+		<uptodate srcfile="${xmlschema.expl}" 
+				targetfile="${xbeans.jar.expl}" 
+		      	property="skip.xmlbeans.expl" value="true"/>
+		<condition property="skip.xmlbeans">
+			<and>
+				<isset property="skip.xmlbeans.model" />
+				<isset property="skip.xmlbeans.expl" />
+			</and>
+		</condition>
+		<echo message="${skip.xmlbeans}" />
 	</target>
-
-	<target name="Compile" depends="CopyResources,GenerateXMLbindings">
-		<javac srcdir="${sourcedir}" destdir="${binarydir}" 
-			classpathref="libraries" debug="on" includeantruntime="false">
+	
+	<!-- clean all builds --> 
+	<target name="clean-all" 
+			description="cleanup all build artifacts"
+			depends="mkdirs-and-setup-props">
+		<clean-build-dirs />
+		<delete file="${xbeans.jar.model}" />
+		<delete file="${xbeans.jar.expl}" />
+	</target>
+	
+	<!-- download dependencies with ivy -->
+	<target name="download-dependencies" 
+			depends="mkdirs-and-setup-props" 
+			description="use ivy to download dependencies">
+		
+		<ivy-download-deps/>
+		<classpath-from-dir dir="${dir.buildlib}" 
+				pathname="${classpath.name.build}" 
+				pathnamejar="${classpath.name.build}.jar"/>
+	</target>
+	
+	<!-- create task defs and setup classpaths -->
+	<target name="define-tasks-and-setup-paths" 
+			depends="download-dependencies">
+		<taskdef name="xmlbean" 
+			classname="org.apache.xmlbeans.impl.tool.XMLBean" 
+			classpathref="${classpath.name.build}" />		
+		<taskdef resource="net/sf/antcontrib/antcontrib.properties" 
+				classpathref="${classpath.name.build}">
+		</taskdef>
+	</target>
+	
+	<target name="compile" depends="define-tasks-and-setup-paths,generate-xml-bindings">
+		<classpath-from-dir dir="${dir.library}" 
+				pathname="${classpath.name.bin}" 
+				pathnamejar="${classpath.name.bin}.jar"/>
+		<javac srcdir="${dir.source}" destdir="${dir.bin}" 
+			classpathref="${classpath.name.bin}" debug="on" includeantruntime="false">
 			<compilerarg value="-Xlint:unchecked" />
 		</javac>
 	</target>
 
-	<target name="Clean">
-		<delete includeemptydirs="true">
-			<fileset dir="${binarydir}" includes="**/*" />
-		</delete>
-		<delete file="${XBeansJar}" />
-		<delete file="${XBeansJarExpl}" />
-		<mkdir dir="${binarydir}" />
-		<mkdir dir="${builddir}" />
-		<echo message="${jarClasspath}" />
-	</target>
+	<target name="jar" depends="compile">
+		<property name="fullJarClasspath" value="${classpath.bin.jar}   resource/    lib/" />
 
-	<target name="Deploy" depends="Jar">
-		<var name="deployto" value="${loadermacdir}" />
-		<antcall target="DeployOne" />
-		<copy todir="${loadermacdir}" file="${resourcedir}/buildFiles/loader.sh" />
-
-		<var name="deployto" value="${loaderwindir}" />
-		<antcall target="DeployOne" />
-		<copy todir="${loaderwindir}" file="${resourcedir}/buildFiles/loader.bat" />
-
-		<var name="deployto" value="${explmacdir}" />
-		<antcall target="DeployOne" />
-		<copy todir="${explmacdir}" file="${resourcedir}/buildFiles/expl.sh" />
-
-		<var name="deployto" value="${explwindir}" />
-		<antcall target="DeployOne" />
-		<copy todir="${explwindir}" file="${resourcedir}/buildFiles/expl.bat" />
-	</target>
-
-	<target name="DeployOne">
-		<mkdir dir="${deployto}/lib" />
-		<copy todir="${deployto}/lib">
-			<fileset dir="${librarydir}">
-				<exclude name=".svn" />
-			</fileset>
+		<mkdir dir="${dir.deploy}" />
+		
+		<!-- copy resources -->
+		<copy todir="${dir.deploy}" file="${dir.resource}/buildFiles/loader.sh" />
+		<copy todir="${dir.deploy}" file="${dir.resource}/buildFiles/loader.bat" />
+		<copy todir="${dir.deploy}" file="${dir.resource}/buildFiles/expl.sh" />
+		<copy todir="${dir.deploy}" file="${dir.resource}/buildFiles/expl.bat" />
+		
+		<mkdir dir="${dir.deploylib}" />
+		<copy todir="${dir.deploylib}">
+			<fileset dir="${dir.library}" />
 		</copy>
-		<mkdir dir="${deployto}/resource" />
-		<copy todir="${deployto}/resource">
-			<fileset dir="${resourcedir}">
-				<exclude name=".svn" />
+		<mkdir dir="${dir.deploy}/resource" />
+		<copy todir="${dir.deploy}/resource">
+			<fileset dir="${dir.resource}">
 				<exclude name="buildFiles/**" />
 				<exclude name="test/**" />
 				<exclude name="log4jproperties.txt" />
 			</fileset>
 		</copy>
-		<copy todir="${deployto}/resource" file="${resourcedir}/buildFiles/log4jproperties.txt" />
-	</target>
+		<copy todir="${dir.deploy}/resource" file="${dir.resource}/buildFiles/log4jproperties.txt" />
 
-	<target name="Jar" depends="Compile,GenerateXMLbindings">
-		<antcall target="JarVagabondLoader" />
-		<antcall target="JarVagabondExplGen" />
-		<antcall target="JarForOtherProjects" />
-	</target>
-
-	<target name="JarForGui" depends="Compile,GenerateXMLbindings">
-		<jar destfile="${basedir}/../VivienVagabond/lib/loadermac.jar" basedir="${binarydir}">
+		<!-- create jar file -->
+		<jar destfile="${jar.bin}" basedir="${dir.bin}">
 			<manifest>
-				<attribute name="Main-Class" value="${loaderMainClass}" />
+				<attribute name="Main-Class" value="${mainclass.explgen}" />
+				<attribute name="Created-By" value="${jar.creator}" />
+				<attribute name="Class-Path" value="${fullJarClasspath}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="JarForGui" depends="compile,generate-xml-bindings">
+		<jar destfile="${basedir}/../VagabondRCP/lib/loadermac.jar" basedir="${binarydir}">
+			<manifest>
+				<attribute name="Main-Class" value="${mainclass.loader}" />
 				<attribute name="Created-By" value="University of Toronto" />
 				<attribute name="Class-Path" value="${fullJarClasspath}" />
 			</manifest>
 		</jar>
 	</target>
 
-	<target name="JarForSTBench" depends="Compile,GenerateXMLbindings">
+	<target name="JarForSTBench" depends="compile,generate-xml-bindings">
 		<jar destfile="${basedir}/../iBench/lib/trampexgen.jar" basedir="${binarydir}">
 			<manifest>
-				<attribute name="Main-Class" value="${loaderMainClass}" />
+				<attribute name="Main-Class" value="${mainclass.loader}" />
 				<attribute name="Created-By" value="University of Toronto" />
 				<attribute name="Class-Path" value="${fullJarClasspath}" />
 			</manifest>
 		</jar>
 	</target>
 	
-	<target name="JarForVagabondRCP" depends="Compile,GenerateXMLbindings">
+	<target name="JarForVagabondRCP" depends="compile,generate-xml-bindings">
 		<jar destfile="${basedir}/../iBench/lib/trampexgen.jar" basedir="${binarydir}">
 			<manifest>
-				<attribute name="Main-Class" value="${loaderMainClass}" />
+				<attribute name="Main-Class" value="${mainclass.loader}" />
 				<attribute name="Created-By" value="University of Toronto" />
 				<attribute name="Class-Path" value="${fullJarClasspath}" />
 			</manifest>
 		</jar>
 	</target>
 
-	<target name="JarForOtherProjects" depends="Compile,GenerateXMLbindings">
-		<copy todir="${binarydir}">
-			<fileset dir="${resourcedir}/queries">
-			</fileset>
-		</copy>
-		<jar destfile="${builddir}/trampexgen.jar" basedir="${binarydir}">
-			<manifest>
-				<attribute name="Main-Class" value="${loaderMainClass}" />
-				<attribute name="Created-By" value="University of Toronto" />
-				<attribute name="Class-Path" value="${fullJarClasspath}" />
-			</manifest>
-		</jar>
-	</target>
-	
-	<target name="JarVagabondLoader">
-		<mkdir dir="${loadermacdir}" />
-		<mkdir dir="${loaderwindir}" />
-		<jar destfile="${loadermacdir}/loadermac.jar" basedir="${binarydir}">
-			<manifest>
-				<attribute name="Main-Class" value="${loaderMainClass}" />
-				<attribute name="Created-By" value="University of Toronto" />
-				<attribute name="Class-Path" value="${fullJarClasspath}" />
-			</manifest>
-		</jar>
-		<jar destfile="${loaderwindir}/loaderwin.jar" basedir="${binarydir}">
-			<manifest>
-				<attribute name="Main-Class" value="${loaderMainClass}" />
-				<attribute name="Created-By" value="University of Toronto" />
-				<attribute name="Class-Path" value="${fullJarClasspath}" />
-			</manifest>
-		</jar>
+	<target name="generate-xml-bindings" 
+		depends="generate-xml-jar,generate-xml-src"
+		unless="skip.xmlbeans">
 	</target>
 
-	<target name="JarVagabondExplGen">
-		<mkdir dir="${explmacdir}" />
-		<mkdir dir="${explwindir}" />
-		<jar destfile="${explmacdir}/explmac.jar" basedir="${binarydir}">
-			<manifest>
-				<attribute name="Main-Class" value="${explgenMainClass}" />
-				<attribute name="Created-By" value="University of Toronto" />
-				<attribute name="Class-Path" value="${fullJarClasspath}" />
-			</manifest>
-		</jar>
-		<jar destfile="${explwindir}/explwin.jar" basedir="${binarydir}">
-			<manifest>
-				<attribute name="Main-Class" value="${explgenMainClass}" />
-				<attribute name="Created-By" value="University of Toronto" />
-				<attribute name="Class-Path" value="${fullJarClasspath}" />
-			</manifest>
-		</jar>
-	</target>
-
-
-	<target name="GenerateJavaDoc">
-		<javadoc access="private" author="true" classpathref="libraries" destdir="${docdir}" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="org.tramp.expl" source="1.6" sourcepath="${sourcedir}" splitindex="true" use="true" version="true">
-		</javadoc>
-	</target>
-
-	<target name="GenerateXMLbindings">
-		<!-- <delete dir="${basedir}/src/org/tramp/xml/datamodel"/>
-		<delete dir="${basedir}/bin/org/sesam/xml/datamodel"/> 
-		-->
-		<antcall target="GenerateXMLJar" />
-		<antcall target="GenerateXMLSourceCode" />
-	</target>
-
-	<target name="GenerateXMLSourceCode">
+	<target name="generate-xml-src"
+			depends="define-tasks-and-setup-paths"
+			unless="skip.xmlbeans"	>
 		<description>This task generates the java source files from the xsd schema.</description>
-		<xmlbean schema="${schema}" 
-			classgendir="${binarydir}" 
-			srcgendir="${XBeansSrc}/model" 
-			classpathref="project.class.path.xml" 
+		<xmlbean schema="${xmlschema.model}" 
+			classgendir="${dir.bin}" 
+			srcgendir="${xbeans.srcdir}/model" 
+			classpathref="${classpath.name.build}" 
 			javasource="1.6" />
-		<xmlbean schema="${schemaExpl}" 
-			classgendir="${binarydir}" 
-			srcgendir="${XBeansSrc}/expl" 
-			classpathref="project.class.path.xml" 
+		<xmlbean schema="${xmlschema.expl}" 
+			classgendir="${dir.bin}" 
+			srcgendir="${xbeans.srcdir}/expl" 
+			classpathref="${classpath.name.build}" 
 			javasource="1.6" />
 	</target>
 
-	<target name="GenerateXMLJar">
+	<target name="generate-xml-jar"
+			depends="define-tasks-and-setup-paths"
+			unless="skip.xmlbeans">
 		<description>This task generates a jar file containing the classes generated from the xsd schema.</description>
-		<xmlbean schema="${schema}" 
+		<xmlbean schema="${xmlschema.model}" 
 			debug="on" 
-			destfile="${XBeansJar}" 
-			classpathref="project.class.path.xml" 
+			destfile="${xbeans.jar.model}" 
+			classpathref="${classpath.name.build}" 
 			javasource="1.6" />
-		<xmlbean schema="${schemaExpl}" 
+		<xmlbean schema="${xmlschema.expl}" 
 			debug="on" 
-			destfile="${XBeansJarExpl}" 
-			classpathref="project.class.path.xml" 
+			destfile="${xbeans.jar.expl}" 
+			classpathref="${classpath.name.build}" 
 			javasource="1.6" />
 	</target>
 

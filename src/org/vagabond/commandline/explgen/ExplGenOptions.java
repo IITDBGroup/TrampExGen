@@ -62,7 +62,7 @@ public class ExplGenOptions {
 	@Option(name = "-rankSkyline", 
 			usage = "Use Skyline ranker with this ranking schemes", 
 			metaVar = "[scheme 1] [scheme 2] ...")
-	private String[] skylineRankers = null;
+	private String[] skylineRankers = new String[0];
 
 	@Option(name = "-nonInteractive", usage = "rank explanations and output them without user interaction")
 	private boolean rankNonInteractive = false;
@@ -78,6 +78,9 @@ public class ExplGenOptions {
 	
 	@Option(name = "-timeLimit", usage = "stops ranking after time limit (in sec) is reached")
 	private int timeLimit = -1;
+	
+	@Option(name="-help", usage="show this help message")
+	private boolean showHelp = false;
 	
 	public ExplGenOptions() {
 		CmdLineParser.registerHandler(String[].class, StringArrayOptionHandler.class);
@@ -251,6 +254,14 @@ public class ExplGenOptions {
 
 	public void setTimeLimit(int timeLimit) {
 		this.timeLimit = timeLimit;
+	}
+
+	public boolean isShowHelp() {
+		return showHelp;
+	}
+
+	public void setShowHelp(boolean showHelp) {
+		this.showHelp = showHelp;
 	}
 	
 	

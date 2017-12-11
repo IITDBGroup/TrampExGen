@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar explmac.jar $*
+java -jar vagabond.jar $*
