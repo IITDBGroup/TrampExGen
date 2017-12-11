@@ -9,6 +9,7 @@
  		status="integration">
  	</info>
 	<dependencies>
+		<dependency org="org.bitbucket.ibencher" name="dbunit" rev="1.0" />
 		<dependency org="args4j" name="args4j" rev="2.33">
 			<artifact name="args4j" type="jar" />
 		</dependency>
