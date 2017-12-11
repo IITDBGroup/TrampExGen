@@ -9,8 +9,6 @@
 	<classpathentry kind="lib" path="lib/args4j.args4j.args4j-2.33.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections.commons-collections.commons-collections-3.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-primitives.commons-primitives.commons-primitives-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/java-bloomfilter-sources.jar"/>
-	<classpathentry kind="lib" path="lib/java-bloomfilter.jar"/>
 	<classpathentry kind="lib" path="lib/javaee-api.jar"/>
 	<classpathentry kind="lib" path="lib/javax.activation.activation.activation-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/javax.mail.mail.mail-1.4.3.jar"/>
