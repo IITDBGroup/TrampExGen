@@ -129,7 +129,12 @@ Vagabond is a system for explaining errors in data exchange.
 		<copy todir="${dir.deploy}" file="${dir.resource}/buildFiles/loader.bat" />
 		<copy todir="${dir.deploy}" file="${dir.resource}/buildFiles/expl.sh" />
 		<copy todir="${dir.deploy}" file="${dir.resource}/buildFiles/expl.bat" />
-		
+		<chmod perm="775" type="file">
+		  <fileset dir="${dir.deploy}">
+		    <include name="**/*.sh"/>
+		    <include name="**/*.bat"/>
+		  </fileset>
+		</chmod>
 		<mkdir dir="${dir.deploylib}" />
 		<copy todir="${dir.deploylib}">
 			<fileset dir="${dir.library}" />
